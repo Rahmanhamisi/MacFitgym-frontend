@@ -1,5 +1,10 @@
 <script setup>
   import { ref } from 'vue'
+  import { useRouter } from "vue-router"
+  import { useAuth } from '../services/auth'
+
+    const router = useRouter()
+    const { login, loading, error } = useAuth()
 
   const rules = {
     required: value => !!value || 'Required.',
@@ -11,6 +16,31 @@
   const show2 = ref(true)
   const password = ref(null)
 
+  const username = ref(null)
+
+ async function handleLogin(){
+  
+  if (!username.value || !password.value) {
+    console.error('Email and password are required')
+    return
+  }
+  
+  try {
+    await login({
+      email: username.value,
+      password: password.value
+    })
+   
+    // Redirect after successful login
+    router.push('/homepage').then(() => {
+        router.go(0); // Reloads the current route
+    });
+  } catch (err) {
+    // Error is already handled by the auth service
+    console.error('Login failed', err)
+  }
+}
+
 </script>
 
 <template>
@@ -21,7 +51,7 @@
                     <v-row>
                         <v-col md="12">
                             <div class="text-display-small font-weight-medium">
-                                Welcome to MacFit
+                                Welcome to MacFit Gym
                             </div>
                         </v-col>
                     </v-row>
@@ -30,7 +60,7 @@
                         <v-col md="12">
                             <v-text-field
                                 label="Username"
-                                type="email"
+                                v-model="username"
                                 variant="outlined"
                             ></v-text-field>
                         </v-col>
@@ -46,7 +76,6 @@
                                 variant="outlined"
                                 @click:append="show1 = !show1"
                                 label="Password"
-                                type="Password"
 
                                 
                             ></v-text-field>
@@ -55,14 +84,13 @@
 
                     <v-row>
                         <v-col md="12">
-                            <v-btn color="#1B8FAA"variant="elevated">
-                                Login
-                            </v-btn>
+                            <v-btn color="#1B8FAA"variant="elevated"@click="handleLogin">Log in</v-btn>  
                         </v-col>
                     </v-row>
                     <v-row>
                             <v-col md="12">
-                                <div> New to MacFit Gym? Create an account</div>
+                                <div> New to MacFit Gym? 
+                                <router-link to="/signup">Create an account</router-link></div>
                             </v-col>
 
                         </v-row>
